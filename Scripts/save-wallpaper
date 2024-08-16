@@ -1,0 +1,37 @@
+#! /usr/bin/env bash
+## Define source and destination directories and file names
+source_file="/home/guru/.config/background"
+destination_dir="/home/guru/Pictures/wallpaper"
+base_name="damask-japan-street-night"
+
+# Ensure the destination directory exists
+mkdir -p "$destination_dir"
+
+# Find the highest existing number in the target directory
+max_number=$(ls "$destination_dir" | grep -oP "(?<=${base_name}-)\d{3}(?=\.jpg)" | sort -nr | head -n1)
+
+# Determine the next number, default to 1 if none exist
+if [ -z "$max_number" ]; then
+    next_number="001"
+else
+    next_number=$(printf "%03d" $((10#$max_number + 1)))
+    if [ "$next_number" -gt "999" ]; then
+        echo "Error: Maximum file number (999) reached."
+        exit 1
+    fi
+fi
+
+# Define the new file name
+new_file_name="${base_name}-${next_number}.jpg"
+destination_file="${destination_dir}/${new_file_name}"
+
+# Copy and rename the file
+cp "$source_file" "$destination_file"
+
+# Confirm the operation
+if [ $? -eq 0 ]; then
+    echo "File copied and renamed to ${destination_file}"
+else
+    echo "Failed to copy the file."
+    exit 1
+fi
